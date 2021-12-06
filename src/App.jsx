@@ -1,8 +1,7 @@
-import { useState } from 'react'
-import RLogin, { RLoginButton } from '@rsksmart/rlogin'
-import WalletConnectProvider from '@walletconnect/web3-provider'
-// import rifId from './rif-id-social.png'
-import './App.css'
+import { useEffect, useState } from 'react';
+import RLogin, { RLoginButton } from '@rsksmart/rlogin';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import './App.css';
 
 const rLogin = new RLogin({
   cachedProvider: false,
@@ -11,61 +10,70 @@ const rLogin = new RLogin({
       package: WalletConnectProvider,
       options: {
         rpc: {
-          31: 'https://public-node.testnet.rsk.co'
-        }
-      }
-    }
+          31: 'https://public-node.testnet.rsk.co',
+        },
+      },
+    },
   },
-  supportedChains: [31] // we are going to connect to rsk testnet for this test
-})
+  supportedChains: [31], // we are going to connect to rsk testnet for this test
+});
 
-function App() {
-  const [provider, setProvider] = useState(null)
-  const [account, setAccount] = useState('')
-  const [balance, setBalance] = useState('')
-  const [txHash, setTxHash] = useState('')
-  const [signature, setSignature] = useState('')
+const App = () => {
+  const [provider, setProvider] = useState(null);
+  const [account, setAccount] = useState('');
+  const [balance, setBalance] = useState('');
+  const [txHash, setTxHash] = useState('');
+  const [signature, setSignature] = useState('');
   const [amountBtc, setAmountBtc] = useState('');
   const [amountUsd, setAmountUsd] = useState('');
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    async function getData() {
+      const response = await (await fetch('/api/')).text();
+      setData(response);
+    }
+    getData();
+  }, []);
 
   const connect = () => rLogin.connect()
     .then(({ provider }) => {
-      setProvider(provider)
-      provider.request({ method: 'eth_accounts' }).then(([account]) => setAccount(account))
-    })
+      setProvider(provider);
+      provider.request({ method: 'eth_accounts' }).then(([account]) => setAccount(account));
+    });
 
   const getBalance = () => provider.request({
-    method: 'eth_getBalance',
-    params: [account]
-  }).then(setBalance)
+      method: 'eth_getBalance',
+      params: [account],
+    }).then(setBalance);
 
-  const toAddress = '0xEf4A35cD4D9c20591B330Cf9Ac1885E796Ed5661'
+  const toAddress = '0xEf4A35cD4D9c20591B330Cf9Ac1885E796Ed5661';
   const sendTransaction = () => {
     const totalAmount = Math.floor((Number(amountBtc) * 1000000000000000000)).toString(16);
     console.log('amountBtc', amountBtc);
     console.log('totalAmount', totalAmount);
     return provider.request({
       method: 'eth_sendTransaction',
-      params: [{ from: account, to: toAddress, value: totalAmount }]
-    }).then(setTxHash)
-  }
+      params: [{ from: account, to: toAddress, value: totalAmount }],
+    }).then(setTxHash);
+  };
 
-  const message = 'Welcome to RIF Identity suite!!!'
+  const message = 'Welcome to RIF Identity suite!!!';
   const personalSign = () => provider.request({
-    method: 'personal_sign',
-    params: [message, account]
-  }).then(setSignature)
+      method: 'personal_sign',
+      params: [message, account],
+    }).then(setSignature);
 
   const handleChangeAmount = (event) => {
     setAmountUsd(event.target.value);
 
     fetch('https://api.coingecko.com/api/v3/simple/price/?ids=rootstock&vs_currencies=usd')
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         console.log(data);
         setAmountBtc(event.target.value / data.rootstock.usd);
       });
-  }
+  };
 
   return (
     <div className="App">
@@ -86,6 +94,6 @@ function App() {
       <p>signature: {signature}</p>
     </div>
   );
-}
+};
 
 export default App;
