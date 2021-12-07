@@ -390,9 +390,18 @@ const Form = () => {
                         <div className="col-sm-5">{toAddress}</div>
                       </div>
                       <br />
-                      <div className="row">
-                        <div className="col-sm-5">
-                          <p>Tx Hash: {txHash}</p>
+                      <div className="row text-center">
+                        <div className="col-sm-10 col-sm-offset-1">
+                          <p hidden={!txHash}>
+                            <a
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="badge"
+                              href={`https://explorer.testnet.rsk.co/tx/${txHash}`}
+                            >
+                              Tx Hash: {txHash}
+                            </a>
+                          </p>
                         </div>
                       </div>
                     </div>
