@@ -51,7 +51,10 @@ const RemittanceSchema = new mongoose.Schema({
 
     type: String,
     required: [true, "Please provide the remittance receiver's phone number"],
-    maxlength: [20, "Receiver's Phone Number Name cannot be more than 20 characters"],
+    maxlength: [
+      20,
+      "Receiver's Phone Number Name cannot be more than 20 characters",
+    ],
   },
   RemittanceFiatAmount: {
     /* The species of your remittance */
@@ -65,7 +68,10 @@ const RemittanceSchema = new mongoose.Schema({
 
     type: String,
     required: [true, "Please specify the fiat currency of your remittance."],
-    maxlength: [30, "Remittance Fiat Currency specified cannot be more than 30 characters"],
+    maxlength: [
+      30,
+      "Remittance Fiat Currency specified cannot be more than 30 characters",
+    ],
   },
 
   FeeUSD: {

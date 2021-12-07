@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import RLogin, { RLoginButton } from "@rsksmart/rlogin";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 
@@ -46,14 +46,6 @@ const Form = () => {
     Status: true,
   });
 
-  useEffect(() => {
-    async function getData() {
-      const response = await (await fetch("/api/")).text();
-      setData(response);
-    }
-    getData();
-  }, []);
-
   const connect = () => {
     return rLogin.connect().then(({ provider }) => {
       setProvider(provider);
@@ -73,6 +65,58 @@ const Form = () => {
       .then(setBalance);
   };
 
+    /* The POST method adds a new entry in the mongodb database. */
+    const postData = async (form) => {
+      try {
+        console.log(form);
+        const res = await fetch("/api/", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        });
+
+        // Throw error with status code in case Fetch API req failed
+        if (!res.ok) {
+          throw new Error(res.status);
+        }
+        const data = res.json();
+        setData(data);
+        console.log(txHash);
+        console.log(signature);
+        console.log(data.PIN);
+
+        MySwal.fire({
+          title: "¡Se creó exitosamente la remesa!",
+          icon: "success",
+          html: `
+            <p>txHash: ${txHash}</p>
+            <p>signature: ${signature}</p>
+            <p>pint ${data?.PIN || ''}</p>
+          `,
+        });
+      } catch (error) {
+        setMessage("Failed to add remittance");
+        console.log(error);
+        MySwal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong! Failed to add remittance.',
+        });
+      }
+    };
+
+  const personalSign = () => {
+    const message = "Welcome to RIF Identity suite!!!";
+    return provider
+      .request({
+        method: "personal_sign",
+        params: [message, account],
+      });
+  };
+
   const toAddress = "0xEf4A35cD4D9c20591B330Cf9Ac1885E796Ed5661";
   const sendTransaction = () => {
     const totalAmount = Math.floor(
@@ -85,17 +129,20 @@ const Form = () => {
         method: "eth_sendTransaction",
         params: [{ from: account, to: toAddress, value: totalAmount }],
       })
-      .then(setTxHash);
-  };
-
-  const personalSign = () => {
-    const message = "Welcome to RIF Identity suite!!!";
-    return provider
-      .request({
-        method: "personal_sign",
-        params: [message, account],
-      })
-      .then(setSignature);
+      .then((tx) => {
+        setTxHash(tx);
+        return personalSign();
+      }).then(async (sig) => {
+        setSignature(sig);
+        await postData();
+      }).catch((error) => {
+        console.log(error);
+        MySwal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong! Failed to send transaction.',
+        });
+      });
   };
 
   const handleChangeFiatAmount = (e) => {
@@ -105,56 +152,21 @@ const Form = () => {
       "https://api.coingecko.com/api/v3/simple/price/?ids=rootstock&vs_currencies=usd",
     )
       .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        const fiatAmount = e.target.value / data.rootstock.usd;
-        const feeAmount = form.FeeUSD / data.rootstock.usd;
-        setFiatAmountBtc(fiatAmount);
-        setTotalAmountRemittance(fiatAmount + feeAmount);
-      }, (reason) => {
-        console.log(reason);
-      }).catch((error) => {
+      .then(
+        (data) => {
+          console.log(data);
+          const fiatAmount = e.target.value / data.rootstock.usd;
+          const feeAmount = form.FeeUSD / data.rootstock.usd;
+          setFiatAmountBtc(fiatAmount);
+          setTotalAmountRemittance(fiatAmount + feeAmount);
+        },
+        (reason) => {
+          console.log(reason);
+        },
+      )
+      .catch((error) => {
         console.log(error);
       });
-  };
-
-  /* The POST method adds a new entry in the mongodb database. */
-  const postData = async (form) => {
-    try {
-      console.log(form);
-      // const res = await fetch("/api/remittances", {
-      //   method: "POST",
-      //   headers: {
-      //     Accept: "application/json",
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(form),
-      // });
-
-      // // Throw error with status code in case Fetch API req failed
-      // if (!res.ok) {
-      //   throw new Error(res.status);
-      // }
-      console.log(txHash);
-      console.log(signature);
-
-      MySwal.fire({
-        title: "¡Se creó exitosamente la remesa!",
-        icon: "success",
-        html: `
-          <p>txHash: ${txHash}</p>
-          <p>signature: ${signature}</p>
-        `,
-        // <p>pint ${res?.result?.PIN || ''}</p>
-        didOpen: () => {
-          // `MySwal` is a subclass of `Swal`
-          //   with all the same instance & static methods
-          MySwal.clickConfirm();
-        },
-      });
-    } catch (error) {
-      setMessage("Failed to add remittance");
-    }
   };
 
   const handleChange = (e) => {
@@ -176,8 +188,6 @@ const Form = () => {
     const errors = formValidate();
     if (Object.keys(errors).length === 0) {
       sendTransaction();
-      personalSign();
-      postData(form);
     } else {
       console.log(errors);
       setErrors({ errors });
@@ -318,7 +328,7 @@ const Form = () => {
                         <strong>BTC</strong>
                       </div>
                       <div className="col-sm-7">
-                        {(+fiatAmountBtc).toFixed(8)}{" "}<strong>₿</strong>
+                        {(+fiatAmountBtc).toFixed(8)} <strong>₿</strong>
                       </div>
                     </div>
                     <div className="col-sm-7">
@@ -338,7 +348,7 @@ const Form = () => {
                         <strong>Valor total a pagar</strong>
                       </div>
                       <div className="col-sm-5 col-sm-offset-1">
-                        <p>{(+totalAmountRemittance).toFixed(8)}{" "}₿</p>
+                        <p>{(+totalAmountRemittance).toFixed(8)} ₿</p>
                       </div>
                     </div>
                   </div>
@@ -346,17 +356,13 @@ const Form = () => {
 
                 <div className="tab-pane" id="resume">
                   <div className="row">
-                    <h4 className="info-text">
-                      Resumen de la remesa
-                    </h4>
+                    <h4 className="info-text">Resumen de la remesa</h4>
                     <div className="col-sm-10 col-sm-offset-1">
                       <div className="row">
                         <div className="col-sm-5">
                           <strong>Remitente:</strong>
                         </div>
-                        <div className="col-sm-5">
-                          {toAddress}
-                        </div>
+                        <div className="col-sm-5">{toAddress}</div>
                       </div>
                       <hr />
                       <div className="row">
@@ -364,13 +370,13 @@ const Form = () => {
                           <strong>Valor a enviar (USD):</strong>
                         </div>
                         <div className="col-sm-5">
-                          {form.RemittanceFiatAmount}{" "}$
+                          {form.RemittanceFiatAmount} $
                         </div>
                         <div className="col-sm-5">
                           <strong>Valor a enviar (BTC):</strong>
                         </div>
                         <div className="col-sm-5">
-                          {(+fiatAmountBtc).toFixed(8)}{" "}<strong>₿</strong>
+                          {(+fiatAmountBtc).toFixed(8)} <strong>₿</strong>
                         </div>
                       </div>
                       <hr />
@@ -378,9 +384,7 @@ const Form = () => {
                         <div className="col-sm-5">
                           <strong>Destinatario:</strong>
                         </div>
-                        <div className="col-sm-5">
-                          {account}
-                        </div>
+                        <div className="col-sm-5">{account}</div>
                       </div>
                       <br />
                       <div className="row">

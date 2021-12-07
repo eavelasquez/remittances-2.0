@@ -10,7 +10,7 @@ import Remittance from "../models/Remittance";
  * @param {*} res
  */
 export default async function handler(req, res) {
-  // All log statements are written to CloudWatch
+  // All log statements are written to logger.
   console.info("input req:", req);
 
   // Get the MongoClient by calling await on the promise.
@@ -18,34 +18,35 @@ export default async function handler(req, res) {
   await connect();
 
   try {
-    if (req.method !== "POST") {
+    const { method, body } = req;
+    if (method !== "POST") {
       throw new Error(
-        `This function only accepts POST method, you tried: ${req.method} method.`
+        `This function only accepts POST method, you tried: ${method} method.`
       );
     }
-    const remittance = await Remittance.create(req.body);
+
+    body.PIN = randomUnique(999999, 1)[0];
+    const remittance = await Remittance.create(
+      body
+    ); /* create a new model in the database */
 
     const response = {
-      code: 201,
-      result: {
+      success: true,
+      data: {
         message: "Successfully added a remittance to the database.",
-        remittance: { ...remittance, PIN: randomUnique(999999, 1)[0] }
+        remittance,
       },
     };
 
-    // All log statements are written to CloudWatch
-    console.info(
-      `response from: ${req.path} statusCode: ${response.code} body: ${response}`
-    );
+    // All log statements are written to logger.
+    console.info(`response body: ${response}`);
     // Use the client to return the name of the connected database.
-    res.status(response.code).json(response);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  } finally {
-    // client.close();
+    res.status(201).json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, error: error.message });
   }
-};
+}
 
 /**
  * Generate unique (non-repeating) random numbers.
