@@ -69,6 +69,8 @@ const Form = () => {
     const postData = async (form) => {
       try {
         console.log(form);
+        console.log(txHash);
+        console.log(signature);
         const res = await fetch("/api/", {
           method: "POST",
           headers: {
@@ -82,10 +84,8 @@ const Form = () => {
         if (!res.ok) {
           throw new Error(res.status);
         }
-        const data = res.json();
+        const data = await res.json();
         setData(data);
-        console.log(txHash);
-        console.log(signature);
         console.log(data);
 
         MySwal.fire({
