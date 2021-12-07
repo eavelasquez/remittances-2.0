@@ -84,7 +84,7 @@ const Form = () => {
         if (!res.ok) {
           throw new Error(res.status);
         }
-        const data = await res.json();
+        const { data } = await res.json();
         setData(data);
         console.log(data);
 
@@ -97,6 +97,7 @@ const Form = () => {
             <p>PIN ${data?.remittance?.PIN || ''}</p>
           `,
         });
+        return data;
       } catch (error) {
         setMessage("Failed to add remittance");
         console.log(error);
@@ -132,9 +133,11 @@ const Form = () => {
       .then((tx) => {
         setTxHash(tx);
         return personalSign();
-      }).then(async (sig) => {
+      }).then((sig) => {
         setSignature(sig);
-        await postData(form);
+        return postData(form);
+      }).then((data) => {
+        console.log(data);
       }).catch((error) => {
         console.log(error);
         MySwal.fire({
