@@ -1,13 +1,12 @@
 <p align="center">
   <a href="remittances-2-0.vercel.app">
-    <img alt="Remittances 2.0" src="" width="250" />
+    <img alt="Remittances 2.0" src="./src/assets/img/remittances.png" width="250" />
   </a>
 </p>
 
-
 # Remittances 2.0
 
-Remittance 2.0 is Web App where the BTC is quoted in real-time in dollars, there the reception of the crypto is done and sent to a corporate wallet. This web app records in databases the information of the operation. 
+Remittance 2.0 is Web App where the BTC is quoted in real-time in dollars, there the reception of the crypto is done and sent to a corporate wallet. This web app records in databases the information of the operation.
 
 ## Setup
 
