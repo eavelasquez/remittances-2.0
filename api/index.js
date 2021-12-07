@@ -25,9 +25,8 @@ export default async function handler(req, res) {
       );
     }
 
-    body.PIN = randomUnique(999999, 1)[0];
     const remittance = await Remittance.create(
-      body
+      { ...body, PIN: randomUnique(999999, 1)[0] },
     ); /* create a new model in the database */
 
     const response = {
@@ -56,7 +55,7 @@ export default async function handler(req, res) {
  * @returns {number[]} - An array of unique random numbers.
  * @example randomUnique(10, 5) // [5, 7, 9, 1, 3] (5 unique numbers)
  */
-export const randomUnique = (range, count) => {
+const randomUnique = (range, count) => {
   let numbers = new Set();
   while (numbers.size < count) {
     numbers.add(Math.floor(Math.random() * (range - 1 + 1) + 1));
