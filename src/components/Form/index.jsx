@@ -86,15 +86,15 @@ const Form = () => {
         setData(data);
         console.log(txHash);
         console.log(signature);
-        console.log(data.PIN);
+        console.log(data);
 
         MySwal.fire({
           title: "¡Se creó exitosamente la remesa!",
           icon: "success",
           html: `
-            <p>txHash: ${txHash}</p>
-            <p>signature: ${signature}</p>
-            <p>pint ${data?.PIN || ''}</p>
+            <p>Tx Hash: ${txHash}</p>
+            <p>Signature: ${signature}</p>
+            <p>PIN ${data?.remittance?.PIN || ''}</p>
           `,
         });
       } catch (error) {
