@@ -9,7 +9,7 @@ import Remittance from "../models/Remittance";
  * @param {*} req
  * @param {*} res
  */
-export default handler = async (req, res) => {
+export default async function handler(req, res) {
   // All log statements are written to CloudWatch
   console.info("input req:", req);
 
