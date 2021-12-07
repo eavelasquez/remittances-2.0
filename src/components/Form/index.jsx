@@ -92,9 +92,8 @@ const Form = () => {
           title: "¡Se creó exitosamente la remesa!",
           icon: "success",
           html: `
-            <p>Tx Hash: ${txHash}</p>
-            <p>Signature: ${signature}</p>
-            <p>PIN ${data?.remittance?.PIN || ''}</p>
+            <p><strong>PIN:</strong> ${data?.remittance?.PIN || ''}</p>
+            <p><strong>Tu giro estará disponible en 2 minutos aproximadamente.</strong></p>
           `,
         });
         return data;
@@ -181,7 +180,7 @@ const Form = () => {
   /* Makes sure pet info is filled for pet name, owner name, species, and image url */
   const formValidate = () => {
     const errors = {};
-    if (!form.ReceiverID) errors.ReceiverID = "DNI es requerido.";
+    if (!form.ReceiverID) errors.ReceiverID = "DUI es requerido.";
     if (!form.ReceiverName) errors.ReceiverName = "Nombre completo es requerido";
     if (!form.RemittanceFiatAmount) errors.RemittanceFiatAmount = "Monto es requerido";
     return errors;
@@ -248,7 +247,7 @@ const Form = () => {
                         </span>
                         <div className="form-group label-floating">
                           <label htmlFor="ReceiverID" className="control-label">
-                            DNI <small>(requerido)</small>
+                            DUI <small>(requerido)</small>
                           </label>
                           <input
                             name="ReceiverID"
@@ -366,7 +365,7 @@ const Form = () => {
                         <div className="col-sm-5">
                           <strong>Remitente:</strong>
                         </div>
-                        <div className="col-sm-5">{toAddress}</div>
+                        <div className="col-sm-5">{account}</div>
                       </div>
                       <hr />
                       <div className="row">
@@ -388,12 +387,12 @@ const Form = () => {
                         <div className="col-sm-5">
                           <strong>Destinatario:</strong>
                         </div>
-                        <div className="col-sm-5">{account}</div>
+                        <div className="col-sm-5">{toAddress}</div>
                       </div>
                       <br />
                       <div className="row">
                         <div className="col-sm-5">
-                          <p>txHash: {txHash}</p>
+                          <p>Tx Hash: {txHash}</p>
                         </div>
                       </div>
                     </div>
