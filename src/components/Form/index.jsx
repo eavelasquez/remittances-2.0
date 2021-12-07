@@ -133,12 +133,13 @@ const Form = () => {
       .then((tx) => {
         setTxHash(tx);
         return personalSign();
-      }).then((sig) => {
+      })
+      .then((sig) => {
         setSignature(sig);
         return postData(form);
-      }).then((data) => {
-        console.log(data);
-      }).catch((error) => {
+      })
+      .then((data) => (console.log(data)))
+      .catch((error) => {
         console.log(error);
         MySwal.fire({
           icon: 'error',
