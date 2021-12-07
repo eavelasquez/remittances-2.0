@@ -151,8 +151,6 @@ const Form = () => {
           //   with all the same instance & static methods
           MySwal.clickConfirm();
         },
-      }).then(() => {
-        return MySwal.fire(<p>Shorthand works too</p>);
       });
     } catch (error) {
       setMessage("Failed to add remittance");
@@ -169,7 +167,6 @@ const Form = () => {
     const errors = {};
     if (!form.ReceiverID) errors.ReceiverID = "DNI es requerido.";
     if (!form.ReceiverName) errors.ReceiverName = "Nombre completo es requerido";
-    if (!form.ReceiverPhoneNumber) errors.ReceiverPhoneNumber = "Número de celular es requerido";
     if (!form.RemittanceFiatAmount) errors.RemittanceFiatAmount = "Monto es requerido";
     return errors;
   };
@@ -182,6 +179,7 @@ const Form = () => {
       personalSign();
       postData(form);
     } else {
+      console.log(errors);
       setErrors({ errors });
     }
   };
@@ -384,10 +382,17 @@ const Form = () => {
                           {account}
                         </div>
                       </div>
+                      <br />
+                      <div className="row">
+                        <div className="col-sm-5">
+                          <p>txHash: {txHash}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
               <div className="wizard-footer">
                 <div className="pull-right">
                   <input
