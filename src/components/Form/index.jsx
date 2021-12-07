@@ -134,7 +134,7 @@ const Form = () => {
         return personalSign();
       }).then(async (sig) => {
         setSignature(sig);
-        await postData();
+        await postData(form);
       }).catch((error) => {
         console.log(error);
         MySwal.fire({
