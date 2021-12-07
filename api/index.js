@@ -25,9 +25,12 @@ export default async function handler(req, res) {
       );
     }
 
+    const doc = { PIN: randomUnique(999999, 1)[0].toString(), ...body };
+    console.log('doc:', doc);
     const remittance = await Remittance.create(
-      { ...body, PIN: randomUnique(999999, 1)[0].toString() },
+      doc,
     ); /* create a new model in the database */
+    console.log('remittance:', remittance);
 
     const response = {
       success: true,

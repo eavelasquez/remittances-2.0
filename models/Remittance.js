@@ -8,8 +8,8 @@ const RemittanceSchema = new mongoose.Schema({
     /* The pin of this remittance */
 
     type: String,
-    required: [true, "Please provide a pin for this remittance."],
-    maxlength: [6, "Pin cannot be more than 6 characters"],
+    // required: [true, "Please provide a pin for this remittance."],
+    // maxlength: [6, "Pin cannot be more than 6 characters"],
   },
   SenderID: {
     /* The sender name of this remittance */
