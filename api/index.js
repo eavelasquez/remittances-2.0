@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     }
 
     const remittance = await Remittance.create(
-      { ...body, PIN: randomUnique(999999, 1)[0] },
+      { ...body, PIN: randomUnique(999999, 1)[0].toString() },
     ); /* create a new model in the database */
 
     const response = {
